@@ -3,8 +3,6 @@ package com.thessalonikiinmap;
 
 import java.io.IOException;
 
-
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.drawable.Drawable;
@@ -59,27 +58,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity implements LocationListener,SensorEventListener{
-	
-	private String logTag = "Monitor location";
+
 	private GoogleMap mMap;
 	private SensorManager sm;
 	private LocationManager lm;
 	
-	private Sensor sensor;
     private float[] mRotationMatrix = new float[16];
 	private float[] mValues= new float[3];
-	private CustomDrawableView mCustomDrawableView;
 	
-	// Create a constant to convert nanoseconds to seconds.
-		private static final float NS2S = 1.0f / 1000000000.0f;
-		private final float[] deltaRotationVector = new float[4];
-		private float timestamp;
 		private float mAzimuth;
 		private float mTilt;
-		
 		private GeomagneticField geoField;
-	
-	//private ArrayList<MyMarker> markers = new ArrayList<MyMarker>();
 	
 	MarkerOptions markerOptions;
 	String provider;
@@ -94,10 +83,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
     Location anwpoli = new Location("Anw Poli");
     float bear, bear2, bear3, bear4, bear5, bear6;
     boolean btnRotateClicked = false, clicked=false;
-	//LocationListener networkLocationListener ;
-//	LocationListener gpsLocationListener;
-	//LocationListener passiveLocationListener;
-//	NetProviderStatusReceiver statusReceiver;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -160,7 +146,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
                         "Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
             }
             else{
-            	mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);//set map type!!! NORMAL, TERRAIN, HYBRID, SATELLITE
+            	mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         		mMap.getUiSettings().setMyLocationButtonEnabled(true);
             	            	
                 Button btn_find = (Button) findViewById(R.id.btn_find);// Getting reference to btn_find of the layout activity_main
@@ -176,15 +162,16 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
         		location = lm.getLastKnownLocation(provider);//get current location
         		
         		latLng = new LatLng(location.getLatitude(), location.getLongitude());//create object for the current location  
-        		
-        		//mMap.addCircle(new CircleOptions().center(latLng).radius(20).fillColor(0x5500ff00).strokeWidth(0));
-        		
+        		        		
         		mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         		mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
         		//setMarkers   
         		mMap.addMarker(new MarkerOptions().position(new LatLng(40.626258f,22.949257f))//.rotation(1)
-      				  .title("Leukos Pirgos").snippet("Λευκός Πύργος").alpha(0.7f)//.draggable(true)
-         				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow();  
+      				  .title("Lefkos Pirgos").snippet("Λευκός Πύργος").alpha(0.7f)//.draggable(true)
+         				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow();
+        		mMap.addMarker(new MarkerOptions().position(new LatLng(40.626014f,22.949377f))//.rotation(1)
+        				  .title("Lefkos Pirgos ").snippet("Λευκός Πύργος").alpha(0.7f)//.draggable(true)
+           				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow();
         		mMap.addMarker(new MarkerOptions().position(new LatLng(40.627719f,22.94668f))//.rotation(1)
         				  .title("Leoforos Nikis-Leukos").snippet("Λεωφόρος Νίκης").alpha(0.7f)//.draggable(true)
            				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow();   
@@ -239,8 +226,17 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
       			mMap.addMarker(new MarkerOptions().position(new LatLng(40.630656f,22.953647f))//.rotation(1)
       				  .title("Aggelaki").snippet("Αγγελάκη").alpha(0.7f)//.draggable(true)
       				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow();  	
-        
-        	
+      			mMap.addMarker(new MarkerOptions().position(new LatLng(40.62627f,22.952473f))//.rotation(1)
+        				  .title("Nik. Germanou").snippet("Νικ. Γερμανού").alpha(0.7f)//.draggable(true)
+        				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow(); 
+      			mMap.addMarker(new MarkerOptions().position(new LatLng(40.631267f,22.943694f))//.rotation(1)
+      				  .title("Mitropoleos").snippet("Μητροπόλεως").alpha(0.7f)//.draggable(true)
+      				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow(); 
+      			mMap.addMarker(new MarkerOptions().position(new LatLng(40.632534f,22.943173f))//.rotation(1)
+        				  .title("Tsimiski").snippet("Τσιμισκή").alpha(0.7f)//.draggable(true)
+        				 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mark))).showInfoWindow(); 
+      			
+      			
         		mMap.setOnMapLongClickListener(mapLongClickSettings());
         		mMap.setOnInfoWindowClickListener(infoWindowClickListener());
         		mMap.setOnMarkerClickListener(markerClickSettings());
@@ -251,7 +247,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
                 lm.requestLocationUpdates(provider, 20000, 0, this);
 
                 sm= (SensorManager) getSystemService(SENSOR_SERVICE);
-        		Sensor vector= sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        		Sensor vector= sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);//.TYPE_ROTATION_VECTOR);
         		
         		sm.registerListener((SensorEventListener) this, vector, 16000);  	
         		
@@ -266,49 +262,24 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
 		  SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
 		  SensorManager.getOrientation(mRotationMatrix, mValues);
 
-		  mAzimuth = (float)Math.toDegrees(mValues[0]);
+		  mAzimuth = (float)Math.round(event.values[0]);
 		  mTilt = (float)Math.toDegrees(mValues[1]);
 		  
 		  if (btnRotateClicked == true){
-			  
+			  try{
 			  CameraPosition camPos = new CameraPosition.Builder().bearing(mAzimuth)
 	  		  		  .target(new LatLng(location.getLatitude(), location.getLongitude()))
 	  		  		  .zoom(17)
 	  		  		  .tilt(67)
 	  		  		  .build();
 	  		  mMap.moveCamera(CameraUpdateFactory.newCameraPosition(camPos));
-	  		//Toast.makeText(getBaseContext(),( "You see White Tower "), Toast.LENGTH_LONG ).show();
-	  		
-	  		bear = location.bearingTo(leukosPurgos);
-	  		bear2 = location.bearingTo(apsidaGaleriou);
-	  		bear3 = location.bearingTo(limani);
-	  		bear4 = location.bearingTo(aristotelous);
-	  		bear5 = location.bearingTo(agsofia);
-  			bear6 = location.bearingTo(kastra);
-	  		
-	  		DecimalFormat df = new DecimalFormat("#.#");
-	  	    double b = Double.parseDouble(df.format(bear));
-	  	    double b2 = Double.parseDouble(df.format(bear2));
-	  	    double b3 = Double.parseDouble(df.format(bear3));
-	  	    double b4 = Double.parseDouble(df.format(bear4));
-	  	    double b5 = Double.parseDouble(df.format(bear5));
-	  	    double b6 = Double.parseDouble(df.format(bear6));
-	  	    double a = Double.parseDouble(df.format(mAzimuth)); 
-	  	    
-		  	    if (b>(a-0.02)&& b<(a+0.02))
-			  		 Toast.makeText(getBaseContext(),( "You see Leukos Pirgos" ), Toast.LENGTH_LONG ).show();
-		  	    else if(b2>(a-0.02)&& b2<(a+0.02))
-		  	    	Toast.makeText(getBaseContext(),( "You see Apsida Galeriou"), Toast.LENGTH_LONG ).show();
-		  	    else if(b3>(a-0.02)&& b2<(a+0.02))
-		  	    	Toast.makeText(getBaseContext(),( "You see the Port"), Toast.LENGTH_LONG ).show();
-		  	    else if(b4>(a-0.02)&& b2<(a+0.02))
-		  	    	Toast.makeText(getBaseContext(),( "You see Plateia Aristotelous"), Toast.LENGTH_LONG ).show();
-		  	    else if(b5>(a-0.02)&& b2<(a+0.02))
-		  	    	Toast.makeText(getBaseContext(),( "You see Plateia Agias Sofias"), Toast.LENGTH_LONG ).show();
-		  	    else if(b6>(a-0.02)&& b2<(a+0.02))
-		  	    	Toast.makeText(getBaseContext(),( "You see Kastra"), Toast.LENGTH_LONG ).show();
+	  		  
+		  	
+			  }catch (Exception e) {
+	                e.printStackTrace();
+	               
+	          }
 		 }
-		 //onLocationChanged(location);		
 	}
 	
 	@Override
@@ -319,11 +290,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
 		         Double.valueOf(location.getAltitude()).floatValue(),
 		         System.currentTimeMillis()
 		      );
-		
-		double lat = location.getLatitude();
-		double lng = location.getLongitude();
-
-		LatLng LAT = new LatLng(lat, lng);
 		
 		leukosPurgos.setLatitude(40.625811f);
 		leukosPurgos.setLongitude(22.948047f);
@@ -362,13 +328,13 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
 			else if(minDistance == distanceApsida)
 				shown="Apsida Galeriou";
 			else if(minDistance == distanceLimani)
-				shown="Limani";
+				shown="Port";
 			else if(minDistance == distanceAristot)
-				shown="Limani";
+				shown="Aristotelous";
 			else if(minDistance == distanceAgsofia)
-				shown="Limani";
+				shown="Agia Sofia";
 			else if(minDistance == distanceKastra)
-				shown="Limani";
+				shown="Kastra";
 			
 			Toast.makeText(getBaseContext(),( "You are near " + shown), Toast.LENGTH_LONG ).show();
 		}
@@ -423,8 +389,10 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
  	            startActivity(i);  */
 				String url = "";
 				
-				 if (marker.getTitle().equals("Leukos Pirgos")){
+				 if (marker.getTitle().equals("Lefkos Pirgos")){
 					showpopup(getResources().getDrawable( R.drawable.leukos1));
+				}else if (marker.getTitle().equals("Lefkos Pirgos ")){
+					showpopup(getResources().getDrawable( R.drawable.leukos0));
 				}else if (marker.getTitle().equals("Leoforos Nikis-Leukos")){
 					showpopup(getResources().getDrawable( R.drawable.leukos4));
 				}else if (marker.getTitle().equals("Leoforos Nikis")){
@@ -461,7 +429,14 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
 					showpopup(getResources().getDrawable( R.drawable.kastra));
 				}else if (marker.getTitle().equals("Aggelaki")){
 					showpopup(getResources().getDrawable( R.drawable.aggelaki));
+				}else if (marker.getTitle().equals("Nik. Germanou")){
+					showpopup(getResources().getDrawable( R.drawable.germanou));
+				}else if (marker.getTitle().equals("Mitropoleos")){
+					showpopup(getResources().getDrawable( R.drawable.mitropoleos));
+				}else if (marker.getTitle().equals("Tsimiski")){
+					showpopup(getResources().getDrawable( R.drawable.tsimiski));
 				}
+				 
 						
 			}
 		};
@@ -518,15 +493,13 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
             return addresses;
         }
  
-        protected void onPostExecute(List<Address> addresses) {
+        protected void onPostExecute(List<Address> addresses) throws Resources.NotFoundException {
  
             if(addresses==null || addresses.size()==0){
                 Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
             }
  
-            // Clears all the existing markers on the map
-            	//mMap.clear();
- 
+            try{
             // Adding Markers on Google Map for each matching address
             for(int i=0;i<addresses.size();i++){
  
@@ -547,9 +520,15 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
                 if(i==0)
                     mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
             }
+        
+            }catch(Exception e){
+			e.printStackTrace();
+        	
+            }
         }
     }
-
+    
+    
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
@@ -583,7 +562,16 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
             super();
             mContext = context;
         }
+        @Override
+        protected void onPostExecute(String addressText) {
+            // Setting the title for the marker.
+            // This will be displayed on taping the marker
+            markerOptions.title(addressText);
  
+            // Placing a marker on the touched position
+            mMap.addMarker(markerOptions).showInfoWindow();
+             
+        }
         // Finding address using reverse geocoding
         @Override
         protected String doInBackground(LatLng... params) {
@@ -612,16 +600,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,S
             return addressText;
         }
 	
-        @Override
-        protected void onPostExecute(String addressText) {
-            // Setting the title for the marker.
-            // This will be displayed on taping the marker
-            markerOptions.title(addressText);
- 
-            // Placing a marker on the touched position
-            mMap.addMarker(markerOptions).showInfoWindow();
-             
-        }
+       
     }
 
 

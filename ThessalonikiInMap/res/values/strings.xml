@@ -3,17 +3,13 @@
 
     <string name="app_name">TimeTravel in Thessaloniki</string>
     <string name="action_settings">Map Type</string>
-    <string name="hello_world">Hello world!</string>
     <string name="message_text">message</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="str_btn_find">Find</string>
     <string name="hnt_et_location">Enter location</string>
     <string name="str_atv_places">Enter location Here</string>
-    <string name="translate">translated</string>
     <string name="rotate">Rotate</string>
     <string name="screenshot">screen</string>
-    <string name="scale">scaled</string>
-    <string name="stop">Stop</string>
-    <string name="title_activity_intro">IntroActivity</string>
+    <string name="title_activity_intro">TimeTravel in Thessaloniki</string>
 
 </resources>
